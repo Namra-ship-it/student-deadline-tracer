@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Deadline Tracker 📚⏰</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Student Deadline Tracker 📚⏰</h1>
+        <p>Auto-reminds assignments, quizzes, exams. Never miss a deadline again!</p>
+    </header>
+    
+    <main>
+        <section id="add-deadline">
+            <h2>Add a New Deadline</h2>
+            <form id="deadline-form">
+                <label for="type">Type:</label>
+                <select id="type">
+                    <option value="assignment">Assignment</option>
+                    <option value="quiz">Quiz</option>
+                    <option value="exam">Exam</option>
+                </select>
+                
+                <label for="description">Description:</label>
+                <input type="text" id="description" required>
+                
+                <label for="date">Due Date:</label>
+                <input type="datetime-local" id="date" required>
+                
+                <button type="submit">Add Deadline</button>
+            </form>
+        </section>
+        
+        <section id="deadline-list">
+            <h2>Your Deadlines</h2>
+            <ul id="deadlines"></ul>
+        </section>
+    </main>
+    
+    <footer>
+        <p>© 2023 Student Deadline Tracker. Exploit poor time management for profit!</p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
