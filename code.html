@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Deadline Tracker 📚⏰</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        section {
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        input, select, button {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Student Deadline Tracker 📚⏰</h1>
+        <p>Auto-reminds assignments, quizzes, exams. Never miss a deadline again!</p>
+    </header>
+    
+    <main>
+        <section id="add-deadline">
+            <h2>Add a New Deadline</h2>
+            <form id="deadline-form">
+                <label for="type">Type:</label>
+                <select id="type">
+                    <option value="assignment">Assignment</option>
+                    <option value="quiz">Quiz</option>
+                    <option value="exam">Exam</option>
+                </select>
+                
+                <label for="description">Description:</label>
+                <input type="text" id="description" required>
+                
+                <label for="date">Due Date:</label>
+                <input type="datetime-local" id="date" required>
+                
+                <button type="submit">Add Deadline</button>
+            </form>
+        </section>
+        
+        <section id="deadline-list">
+            <h2>Your Deadlines</h2>
+            <ul id="deadlines"></ul>
+        </section>
+    </main>
+    
+    <footer>
+        <p>© 2023 Student Deadline Tracker. Exploit poor time management for profit!</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('deadline-form');
+            const list = document.getElementById('deadlines');
+            let deadlines = JSON.parse(localStorage.getItem('deadlines')) || [];
+
+            // Request notification permission
+            if ('Notification' in window) {
+                Notification.requestPermission();
+            }
+
+            // Render deadlines
+            function renderDeadlines() {
+                list.innerHTML = '';
+                deadlines.forEach((deadline, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>${deadline.type}: ${deadline.description} - Due: ${new Date(deadline.date).toLocaleString()}</span>
+                        <button onclick="removeDeadline(${index})">Remove</button>
+                    `;
+                    list.appendChild(li);
+                });
+            }
+
+            // Add deadline
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const type = document.getElementById('type').value;
+                const description = document.getElementById('description').value;
+                const date = document.getElementById('date').value;
+                deadlines.push({ type, description, date });
+                localStorage.setItem('deadlines', JSON.stringify(deadlines));
+                renderDeadlines();
+                form.reset();
+                scheduleReminder({ type, description, date });
+            });
+
+            // Remove deadline
+            window.removeDeadline = (index) => {
+                deadlines.splice(index, 1);
+                localStorage.setItem('deadlines', JSON.stringify(deadlines));
+                renderDeadlines();
+            };
+
+            // Schedule reminder (client-side, triggers 1 hour before)
+            function scheduleReminder(deadline) {
+                const dueTime = new Date(deadline.date).getTime();
+                const reminderTime = dueTime - (60 * 60 * 1000); // 1 hour before
+                const now = Date.now();
+                if (reminderTime > now) {
+                    setTimeout(() => {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification(`Reminder: ${deadline.type} - ${deadline.description} is due soon!`);
+                        }
+                    }, reminderTime - now);
+                }
+            }
+
+            // Initial render and schedule existing reminders
+            renderDeadlines();
+            deadlines.forEach(scheduleReminder);
+        });
+    </script>
+</body>
+</html>
